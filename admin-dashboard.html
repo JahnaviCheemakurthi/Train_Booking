@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Train Booking System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">🚂 Admin Panel</div>
+            <ul class="navbar-menu">
+                <li><a href="#" onclick="showSection('home')">Dashboard</a></li>
+                <li><a href="#" onclick="showSection('trains')">Manage Trains</a></li>
+                <li><a href="#" onclick="showSection('bookings')">All Bookings</a></li>
+                <li><a href="#" onclick="showSection('customers')">Customers</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="welcomeMessage" class="welcome-banner">
+            <span style="font-size:1.3rem;">👋</span>
+            <span id="welcomeText"></span>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="homeSection" class="section">
+            <div class="card">
+                <div class="card-header">📊 Overview</div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalTrains">0</div>
+                        <div class="stat-label">Total Trains</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalBookings">0</div>
+                        <div class="stat-label">Total Bookings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalRevenue">₹0</div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalCustomers">0</div>
+                        <div class="stat-label">Registered Customers</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">🎟 Tickets by Class</div>
+                <div id="ticketsByClass"></div>
+            </div>
+        </div>
+
+        <!-- Manage Trains Section -->
+        <div id="trainsSection" class="section hidden">
+            <div class="card">
+                <div class="card-header">➕ Register New Train</div>
+                
+                <form id="addTrainForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.25rem;">
+                        <div class="form-group">
+                            <label class="form-label" for="trainNumber">Train Number *</label>
+                            <input type="text" id="trainNumber" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="trainName">Train Name *</label>
+                            <input type="text" id="trainName" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="origin">Origin Station *</label>
+                            <input type="text" id="origin" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="destination">Destination Station *</label>
+                            <input type="text" id="destination" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="departureTime">Departure Time *</label>
+                            <input type="time" id="departureTime" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="arrivalTime">Arrival Time *</label>
+                            <input type="time" id="arrivalTime" class="form-input" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="totalSeats">Total Seats *</label>
+                            <input type="number" id="totalSeats" class="form-input" min="1" value="100" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="ownership">Ownership *</label>
+                            <input type="text" id="ownership" class="form-input" value="Indian Railways" required>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-light); border-radius: var(--border-radius); padding: 1.25rem; margin-bottom: 1.25rem;">
+                        <p style="font-size:0.8rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-secondary); margin-bottom:1rem;">Fare Configuration (₹)</p>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0 1rem;">
+                            <div class="form-group" style="margin-bottom:0">
+                                <label class="form-label" for="fareFirstClass">First Class</label>
+                                <input type="number" id="fareFirstClass" class="form-input" min="0" value="5000" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0">
+                                <label class="form-label" for="fareAcTier1">AC Tier 1</label>
+                                <input type="number" id="fareAcTier1" class="form-input" min="0" value="3500" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0">
+                                <label class="form-label" for="fareAcTier2">AC Tier 2</label>
+                                <input type="number" id="fareAcTier2" class="form-input" min="0" value="2000" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom:0">
+                                <label class="form-label" for="fareSleeper">Sleeper</label>
+                                <input type="number" id="fareSleeper" class="form-input" min="0" value="1000" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Register Train</button>
+                </form>
+            </div>
+
+            <div class="card mt-4">
+                <div class="card-header">🚆 All Trains</div>
+                <div id="trainsList"></div>
+            </div>
+        </div>
+
+        <!-- All Bookings Section -->
+        <div id="bookingsSection" class="section hidden">
+            <div class="card">
+                <div class="card-header">📋 All Bookings</div>
+                <div id="allBookingsList"></div>
+            </div>
+        </div>
+
+        <!-- Customers Section -->
+        <div id="customersSection" class="section hidden">
+            <div class="card">
+                <div class="card-header">👥 Registered Customers</div>
+                <div id="customersList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="utils.js"></script>
+    <script>
+        let currentUser = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            currentUser = UserManager.getCurrentUser();
+            if (!currentUser || !currentUser.isAdmin) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            document.getElementById('welcomeText').textContent = 'Welcome, Administrator!';
+            loadDashboard();
+            loadTrains();
+        });
+
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(section + 'Section').classList.remove('hidden');
+            
+            if (section === 'trains') loadTrains();
+            else if (section === 'bookings') loadAllBookings();
+            else if (section === 'customers') loadCustomers();
+        }
+
+        function loadDashboard() {
+            const trains = TrainManager.getAllTrains();
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+            const stats = BookingManager.getStatistics();
+
+            document.getElementById('totalTrains').textContent = trains.length;
+            document.getElementById('totalBookings').textContent = stats.totalBookings;
+            document.getElementById('totalRevenue').textContent = formatCurrency(stats.totalRevenue);
+            document.getElementById('totalCustomers').textContent = users.length;
+
+            const ticketsByClassDiv = document.getElementById('ticketsByClass');
+            let html = '<table class="table"><thead><tr><th>Ticket Category</th><th>Number of Tickets</th></tr></thead><tbody>';
+            
+            for (const [category, count] of Object.entries(stats.ticketsByClass)) {
+                html += `<tr><td>${category}</td><td>${count}</td></tr>`;
+            }
+            
+            if (Object.keys(stats.ticketsByClass).length === 0) {
+                html += '<tr><td colspan="2" style="text-align:center; color:var(--text-muted); padding:2rem;">No booking data yet.</td></tr>';
+            }
+
+            html += '</tbody></table>';
+            ticketsByClassDiv.innerHTML = html;
+        }
+
+        document.getElementById('addTrainForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const trainData = {
+                trainNumber: document.getElementById('trainNumber').value.trim(),
+                trainName: document.getElementById('trainName').value.trim(),
+                origin: document.getElementById('origin').value.trim(),
+                destination: document.getElementById('destination').value.trim(),
+                departureTime: document.getElementById('departureTime').value,
+                arrivalTime: document.getElementById('arrivalTime').value,
+                totalSeats: parseInt(document.getElementById('totalSeats').value),
+                availableSeats: parseInt(document.getElementById('totalSeats').value),
+                ownership: document.getElementById('ownership').value.trim(),
+                fares: {
+                    firstClass: parseFloat(document.getElementById('fareFirstClass').value),
+                    acTier1: parseFloat(document.getElementById('fareAcTier1').value),
+                    acTier2: parseFloat(document.getElementById('fareAcTier2').value),
+                    sleeper: parseFloat(document.getElementById('fareSleeper').value)
+                }
+            };
+
+            try {
+                TrainManager.addTrain(trainData);
+                showAlert('Train registered successfully!', 'success');
+                this.reset();
+                loadTrains();
+                loadDashboard();
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        });
+
+        function loadTrains() {
+            const trains = TrainManager.getAllTrains();
+            const listDiv = document.getElementById('trainsList');
+
+            if (trains.length === 0) {
+                listDiv.innerHTML = '<p class="alert alert-warning">No trains registered yet.</p>';
+                return;
+            }
+
+            let html = '<div style="overflow-x:auto"><table class="table"><thead><tr><th>Train No.</th><th>Name</th><th>Route</th><th>Departure</th><th>Arrival</th><th>Total Seats</th><th>Available</th><th>Ownership</th></tr></thead><tbody>';
+            
+            trains.forEach(train => {
+                html += `
+                    <tr>
+                        <td><strong>${train.trainNumber}</strong></td>
+                        <td>${train.trainName}</td>
+                        <td>${train.origin} → ${train.destination}</td>
+                        <td>${train.departureTime}</td>
+                        <td>${train.arrivalTime}</td>
+                        <td>${train.totalSeats}</td>
+                        <td><span class="${train.availableSeats > 0 ? 'badge badge-success' : 'badge badge-danger'}">${train.availableSeats}</span></td>
+                        <td>${train.ownership}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table></div>';
+            listDiv.innerHTML = html;
+        }
+
+        function loadAllBookings() {
+            const bookings = BookingManager.getAllBookings();
+            const listDiv = document.getElementById('allBookingsList');
+
+            if (bookings.length === 0) {
+                listDiv.innerHTML = '<p class="alert alert-warning">No bookings found.</p>';
+                return;
+            }
+
+            let html = '<div style="overflow-x:auto"><table class="table"><thead><tr><th>Booking ID</th><th>Customer ID</th><th>Train</th><th>Journey Date</th><th>Category</th><th>Tickets</th><th>Fare</th><th>Booking Date</th><th>Status</th></tr></thead><tbody>';
+            
+            bookings.forEach(booking => {
+                const statusBadge = booking.status === 'Confirmed'
+                    ? `<span class="badge badge-success">${booking.status}</span>`
+                    : `<span class="badge badge-danger">${booking.status}</span>`;
+                html += `
+                    <tr>
+                        <td><code style="font-size:0.78rem; color:var(--primary-light)">${booking.bookingId}</code></td>
+                        <td>${booking.customerId}</td>
+                        <td>${booking.trainName} <span style="color:var(--text-muted)">(${booking.trainNumber})</span></td>
+                        <td>${formatDate(booking.journeyDate)}</td>
+                        <td>${booking.ticketCategory}</td>
+                        <td>${booking.numberOfTickets}</td>
+                        <td><strong>${formatCurrency(booking.totalPrice)}</strong></td>
+                        <td>${formatDate(booking.bookingDate)}</td>
+                        <td>${statusBadge}</td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table></div>';
+            listDiv.innerHTML = html;
+        }
+
+        function loadCustomers() {
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+            const listDiv = document.getElementById('customersList');
+
+            if (users.length === 0) {
+                listDiv.innerHTML = '<p class="alert alert-warning">No customers registered yet.</p>';
+                return;
+            }
+
+            let html = '<div style="overflow-x:auto"><table class="table"><thead><tr><th>Customer ID</th><th>Name</th><th>Username</th><th>Email</th><th>Mobile</th><th>Bookings</th></tr></thead><tbody>';
+            
+            users.forEach(user => {
+                const userBookings = BookingManager.getCustomerBookings(user.customerId);
+                html += `
+                    <tr>
+                        <td><code style="font-size:0.78rem; color:var(--primary-light)">${user.customerId}</code></td>
+                        <td>${user.firstName} ${user.lastName}</td>
+                        <td>${user.username}</td>
+                        <td>${user.email}</td>
+                        <td>${user.mobile}</td>
+                        <td><span class="badge badge-success">${userBookings.length}</span></td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table></div>';
+            listDiv.innerHTML = html;
+        }
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+                UserManager.logout();
+                window.location.href = 'login.html';
+            }
+        }
+    </script>
+</body>
+</html>
