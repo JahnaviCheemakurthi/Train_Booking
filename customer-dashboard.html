@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - Train Booking System</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-brand">🚂 Train Booking</div>
+            <ul class="navbar-menu">
+                <li><a href="#" onclick="showSection('home')">Home</a></li>
+                <li><a href="#" onclick="showSection('book')">Book Ticket</a></li>
+                <li><a href="#" onclick="showSection('bookings')">My Bookings</a></li>
+                <li><a href="#" onclick="showSection('profile')">Update Profile</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div id="welcomeMessage" class="welcome-banner">
+            <span style="font-size:1.3rem;">👋</span>
+            <span id="welcomeText"></span>
+        </div>
+
+        <!-- Home Section -->
+        <div id="homeSection" class="section">
+            <div class="card">
+                <div class="card-header">📊 My Dashboard</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalBookings">0</div>
+                        <div class="stat-label">Total Bookings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="confirmedBookings">0</div>
+                        <div class="stat-label">Confirmed Bookings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="totalSpent">₹0</div>
+                        <div class="stat-label">Total Spent</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Book Ticket Section -->
+        <div id="bookSection" class="section hidden">
+            <div class="card">
+                <div class="card-header">🔍 Search Trains</div>
+                <form id="searchTrainForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: flex-end;">
+                        <div class="form-group" style="margin-bottom:0">
+                            <label class="form-label" for="searchOrigin">From</label>
+                            <input type="text" id="searchOrigin" class="form-input" placeholder="Origin station" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0">
+                            <label class="form-label" for="searchDestination">To</label>
+                            <input type="text" id="searchDestination" class="form-input" placeholder="Destination station" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="height:fit-content">Search</button>
+                    </div>
+                </form>
+                <div id="searchResults" class="mt-3"></div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">🎟 Booking Details</div>
+                <form id="bookingForm">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 1.25rem;">
+                        <div class="form-group">
+                            <label class="form-label" for="trainNumber">Train Number *</label>
+                            <input type="text" id="trainNumber" class="form-input" placeholder="Enter train number" required>
+                            <div class="error-message"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="journeyDate">Journey Date *</label>
+                            <input type="date" id="journeyDate" class="form-input" required>
+                            <div class="error-message"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="ticketCategory">Ticket Category *</label>
+                            <select id="ticketCategory" class="form-input" required>
+                                <option value="">Select category</option>
+                                <option value="firstClass">First Class</option>
+                                <option value="acTier1">AC Tier 1</option>
+                                <option value="acTier2">AC Tier 2</option>
+                                <option value="sleeper">Sleeper</option>
+                            </select>
+                            <div class="error-message"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="numberOfTickets">Number of Tickets (Max 6) *</label>
+                            <input type="number" id="numberOfTickets" class="form-input" min="1" max="6" value="1" required>
+                            <div class="error-message"></div>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--accent-light); border-radius: var(--border-radius); padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="color: var(--warning-color); font-weight: 600; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em;">Total Fare</span>
+                        <div id="totalFare" style="font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 700; color: var(--primary-color);">₹200.00</div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Confirm Booking</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- My Bookings Section -->
+        <div id="bookingsSection" class="section hidden">
+            <div class="card">
+                <div class="card-header">📋 My Bookings</div>
+                <div id="bookingsList"></div>
+            </div>
+        </div>
+
+        <!-- Update Profile Section -->
+        <div id="profileSection" class="section hidden">
+            <div class="card">
+                <div class="card-header">👤 Update Profile</div>
+                <form id="updateProfileForm">
+                    <div class="form-group">
+                        <label class="form-label" for="updateEmail">Email Address</label>
+                        <input type="email" id="updateEmail" class="form-input" required>
+                        <div class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="updateMobile">Mobile Number</label>
+                        <input type="tel" id="updateMobile" class="form-input" maxlength="10" required>
+                        <div class="error-message"></div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="updateAddress">Address</label>
+                        <textarea id="updateAddress" class="form-input" rows="3" required></textarea>
+                        <div class="error-message"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Booking Confirmation Modal -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">Booking Confirmed 🎉</div>
+            <div id="confirmationDetails"></div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="closeConfirmationModal()">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="utils.js"></script>
+    <script>
+        let currentUser = null;
+        let selectedTrain = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            currentUser = UserManager.getCurrentUser();
+            if (!currentUser || currentUser.isAdmin) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            document.getElementById('welcomeText').textContent =
+                `Welcome back, ${currentUser.firstName} ${currentUser.lastName}!`;
+            
+            loadDashboard();
+            loadBookings();
+            loadProfile();
+            setMinDate();
+        });
+
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(section + 'Section').classList.remove('hidden');
+        }
+
+        function loadDashboard() {
+            const bookings = BookingManager.getCustomerBookings(currentUser.customerId);
+            const confirmed = bookings.filter(b => b.status === 'Confirmed');
+            const totalSpent = confirmed.reduce((sum, b) => sum + b.totalPrice, 0);
+
+            document.getElementById('totalBookings').textContent = bookings.length;
+            document.getElementById('confirmedBookings').textContent = confirmed.length;
+            document.getElementById('totalSpent').textContent = formatCurrency(totalSpent);
+        }
+
+        function setMinDate() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('journeyDate').min = today;
+        }
+
+        // Search trains
+        document.getElementById('searchTrainForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const origin = document.getElementById('searchOrigin').value.trim();
+            const destination = document.getElementById('searchDestination').value.trim();
+            const trains = TrainManager.searchTrains(origin, destination);
+            const resultsDiv = document.getElementById('searchResults');
+
+            if (trains.length === 0) {
+                resultsDiv.innerHTML = '<p class="alert alert-warning">No trains found for this route.</p>';
+                return;
+            }
+
+            let html = '';
+            trains.forEach(train => {
+                html += `
+                    <div class="train-result-card" onclick="selectTrain('${train.trainNumber}')">
+                        <div>
+                            <strong style="color:var(--primary-color); font-size:1rem;">${train.trainName}</strong>
+                            <span style="color:var(--text-muted); font-size:0.85rem; margin-left:0.5rem;">#${train.trainNumber}</span>
+                            <div style="color:var(--text-secondary); font-size:0.85rem; margin-top:0.25rem;">${train.origin} → ${train.destination} &nbsp;|&nbsp; ${train.departureTime} – ${train.arrivalTime}</div>
+                        </div>
+                        <div style="text-align:right; flex-shrink:0;">
+                            <div style="font-size:0.8rem; color:var(--text-muted);">Starts from</div>
+                            <div style="font-family:'Playfair Display',serif; font-size:1.1rem; font-weight:700; color:var(--primary-color);">${formatCurrency(train.fares.sleeper)}</div>
+                            <div style="font-size:0.78rem; margin-top:0.2rem;">
+                                <span class="${train.availableSeats > 0 ? 'badge badge-success' : 'badge badge-danger'}">${train.availableSeats} seats</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsDiv.innerHTML = html;
+        });
+
+        function selectTrain(trainNumber) {
+            selectedTrain = TrainManager.getTrainByNumber(trainNumber);
+            document.getElementById('trainNumber').value = trainNumber;
+            calculateFare();
+            showAlert(`Selected: ${selectedTrain.trainName}`, 'success');
+            document.getElementById('bookingForm').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function calculateFare() {
+            if (!selectedTrain) return;
+            const category = document.getElementById('ticketCategory').value;
+            const numberOfTickets = parseInt(document.getElementById('numberOfTickets').value) || 1;
+            if (category && selectedTrain.fares[category]) {
+                const totalFare = selectedTrain.fares[category] * numberOfTickets;
+                document.getElementById('totalFare').textContent = formatCurrency(totalFare);
+            }
+        }
+
+        document.getElementById('ticketCategory').addEventListener('change', calculateFare);
+        document.getElementById('numberOfTickets').addEventListener('input', calculateFare);
+
+        document.getElementById('bookingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!selectedTrain) {
+                showAlert('Please select a train first', 'error');
+                return;
+            }
+
+            const journeyDate = document.getElementById('journeyDate').value;
+            const ticketCategory = document.getElementById('ticketCategory').value;
+            const numberOfTickets = parseInt(document.getElementById('numberOfTickets').value);
+
+            try {
+                Validation.validateDate(journeyDate);
+                Validation.validatePositive(numberOfTickets, 'Number of tickets');
+
+                if (numberOfTickets > selectedTrain.availableSeats) {
+                    throw new Error('Not enough seats available');
+                }
+
+                const totalPrice = selectedTrain.fares[ticketCategory] * numberOfTickets;
+
+                const booking = BookingManager.createBooking({
+                    customerId: currentUser.customerId,
+                    trainNumber: selectedTrain.trainNumber,
+                    trainName: selectedTrain.trainName,
+                    journeyDate,
+                    ticketCategory: ticketCategory.replace(/([A-Z])/g, ' $1').trim(),
+                    numberOfTickets,
+                    totalPrice
+                });
+
+                showConfirmationModal(booking);
+                this.reset();
+                selectedTrain = null;
+                document.getElementById('totalFare').textContent = '₹2000.00';
+                document.getElementById('searchResults').innerHTML = '';
+                loadDashboard();
+
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        });
+
+        function showConfirmationModal(booking) {
+            const modal = document.getElementById('confirmationModal');
+            const details = document.getElementById('confirmationDetails');
+            
+            details.innerHTML = `
+                <div class="confirmation-box">
+                    <h3>✓ Booking Confirmed!</h3>
+                    <p><strong>Booking ID:</strong> ${booking.bookingId}</p>
+                    <p><strong>Train:</strong> ${booking.trainName} (${booking.trainNumber})</p>
+                    <p><strong>Journey Date:</strong> ${formatDate(booking.journeyDate)}</p>
+                    <p><strong>Category:</strong> ${booking.ticketCategory}</p>
+                    <p><strong>Tickets:</strong> ${booking.numberOfTickets}</p>
+                    <p><strong>Total Fare:</strong> <span style="font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--primary-color);">${formatCurrency(booking.totalPrice)}</span></p>
+                    <p><strong>Status:</strong> <span class="badge badge-success">${booking.status}</span></p>
+                </div>
+            `;
+            
+            modal.classList.add('show');
+        }
+
+        function closeConfirmationModal() {
+            document.getElementById('confirmationModal').classList.remove('show');
+        }
+
+        function loadBookings() {
+            const bookings = BookingManager.getCustomerBookings(currentUser.customerId);
+            const listDiv = document.getElementById('bookingsList');
+
+            if (bookings.length === 0) {
+                listDiv.innerHTML = '<p class="alert alert-warning">No bookings found. Book your first ticket!</p>';
+                return;
+            }
+
+            let html = '<div style="overflow-x:auto"><table class="table"><thead><tr><th>Booking ID</th><th>Train</th><th>Journey Date</th><th>Category</th><th>Tickets</th><th>Fare</th><th>Status</th><th>Action</th></tr></thead><tbody>';
+            
+            bookings.forEach(booking => {
+                const statusBadge = booking.status === 'Confirmed'
+                    ? `<span class="badge badge-success">${booking.status}</span>`
+                    : `<span class="badge badge-danger">${booking.status}</span>`;
+                html += `
+                    <tr>
+                        <td><code style="font-size:0.78rem; color:var(--primary-light)">${booking.bookingId}</code></td>
+                        <td>${booking.trainName}</td>
+                        <td>${formatDate(booking.journeyDate)}</td>
+                        <td>${booking.ticketCategory}</td>
+                        <td>${booking.numberOfTickets}</td>
+                        <td><strong>${formatCurrency(booking.totalPrice)}</strong></td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            ${booking.status === 'Confirmed' ? 
+                                `<button class="btn btn-danger" onclick="cancelBooking('${booking.bookingId}')">Cancel</button>` : 
+                                booking.refundAmount ? `<span style="font-size:0.82rem; color:var(--secondary-color)">Refund: ${formatCurrency(booking.refundAmount)}</span>` : '—'}
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            html += '</tbody></table></div>';
+            listDiv.innerHTML = html;
+        }
+
+        function cancelBooking(bookingId) {
+            if (confirm('Are you sure you want to cancel this booking?')) {
+                try {
+                    const result = BookingManager.cancelBooking(bookingId);
+                    showAlert(`Booking cancelled. Refund: ${formatCurrency(result.refundAmount)} (${result.refundPercentage}%)`, 'success');
+                    loadBookings();
+                    loadDashboard();
+                } catch (error) {
+                    showAlert(error.message, 'error');
+                }
+            }
+        }
+
+        function loadProfile() {
+            document.getElementById('updateEmail').value = currentUser.email;
+            document.getElementById('updateMobile').value = currentUser.mobile;
+            document.getElementById('updateAddress').value = currentUser.address;
+        }
+
+        document.getElementById('updateProfileForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const email = document.getElementById('updateEmail').value.trim();
+            const mobile = document.getElementById('updateMobile').value.trim();
+            const address = document.getElementById('updateAddress').value.trim();
+
+            try {
+                Validation.validateEmail(email);
+                Validation.validateMobile(mobile);
+                Validation.validateNotEmpty(address, 'Address');
+
+                UserManager.updateProfile(currentUser.customerId, { email, mobile, address });
+                currentUser = UserManager.getCurrentUser();
+                showAlert('Profile updated successfully!', 'success');
+
+            } catch (error) {
+                showAlert(error.message, 'error');
+            }
+        });
+
+        function logout() {
+            if (confirm('Are you sure you want to logout?')) {
+              UserManager.logout();
+              window.location.href='login.html';
+            }
+        }
+    </script>
+</body>
+</html>
+
+           
